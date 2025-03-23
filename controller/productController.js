@@ -11,29 +11,29 @@ const addProduct = async (req, res) => {
       product_detail,
       material_and_care,
     } = req.body;
-    console.log(req.file);
+    // console.log(req.file);
     const image = req.file.filename;
-
+    console.log(req.body);
     if (!product_name) {
-      res.status(400).json({ msg: "product name is missing!" });
+      return res.status(400).json({ msg: "product name is missing!" });
     }
     if (!price) {
-      res.status(400).json({ msg: "price is missing!" });
+      return res.status(400).json({ msg: "price is missing!" });
     }
     if (!size) {
-      res.status(400).json({ msg: "size is missing!" });
+      return res.status(400).json({ msg: "size is missing!" });
     }
     if (!image) {
-      res.status(400).json({ msg: "image is missing!" });
+      return res.status(400).json({ msg: "image is missing!" });
     }
     if (!color) {
-      res.status(400).json({ msg: "color is missing!" });
+      return res.status(400).json({ msg: "color is missing!" });
     }
     if (!product_detail) {
-      res.status(400).json({ msg: "product detail is missing!" });
+      return res.status(400).json({ msg: "product detail is missing!" });
     }
     if (!material_and_care) {
-      res.status(400).json({ msg: "material and care is missing!" });
+      return res.status(400).json({ msg: "material and care is missing!" });
     }
     const product = new Product({
       product_name,
@@ -44,7 +44,9 @@ const addProduct = async (req, res) => {
       product_detail,
       material_and_care: JSON.parse(material_and_care),
     });
+
     await product.save();
+    console.log("data saved");
     return res
       .status(200)
       .json({ msg: "product saved successfully", product: product });

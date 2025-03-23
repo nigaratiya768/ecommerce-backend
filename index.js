@@ -1,4 +1,5 @@
 const express = require("express");
+const dotenv = require("dotenv").config();
 const app = express();
 const { connectWithDB } = require("./database_connection/connectDB");
 const {
@@ -10,8 +11,16 @@ const {
 } = require("./controller/productController");
 const { upload } = require("./middleware/image_upload");
 connectWithDB();
+const cors = require("cors");
+const { register, login } = require("./controller/userController");
+app.use(cors());
 app.use(express.json());
+
+app.use(express.static("images"));
 const PORT = 4001;
+
+app.post("/api/user_register", register);
+app.post("/api/user_login", login);
 
 app.post("/api/add_product", upload.single("image"), addProduct);
 app.get("/api/get_products", getProducts);
