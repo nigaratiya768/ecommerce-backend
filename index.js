@@ -13,7 +13,16 @@ const { upload } = require("./middleware/image_upload");
 connectWithDB();
 const cors = require("cors");
 const { register, login } = require("./controller/userController");
+const {
+  addOrder,
+  getOrder,
+  getOrders,
+} = require("./controller/orderController");
 app.use(cors());
+
+const { sendEmail } = require("./services/mailService");
+sendEmail();
+
 app.use(express.json());
 
 app.use(express.static("images"));
@@ -27,6 +36,10 @@ app.get("/api/get_products", getProducts);
 app.get("/api/get_product/:id", getProduct);
 app.put("/api/update_product/:id", updateProduct);
 app.delete("/api/delete_product/:id", deleteProduct);
+
+app.post("/api/add_order", addOrder);
+app.get("/api/get_order/:id", getOrder);
+app.get("/api/get_orders", getOrders);
 
 app.listen(PORT, () => {
   console.log(`server is running on ${PORT}`);
