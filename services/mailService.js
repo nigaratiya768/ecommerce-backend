@@ -1,25 +1,26 @@
 const nodemailer = require("nodemailer");
 
 const transporter = nodemailer.createTransport({
-  host: "bulk.smtp.mailtrap.io",
-  port: 587,
-  secure: false, // true for port 465, false for other ports
+  service: "Gmail",
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true, // true for port 465, false for other ports
   auth: {
-    user: "api",
+    user: "nigaratiya786@gmail.com",
 
-    pass: "64cb6b95027e14dccae7a579b7ba142b",
+    pass: process.env.APP_PASSWORD,
   },
 });
 
 // async..await is not allowed in global scope, must use a wrapper
-async function main() {
+async function main(orderHtml, to) {
   // send mail with defined transport object
   const info = await transporter.sendMail({
-    from: "hello@demomailtrap.co", // sender address
-    to: "nigaratiya786@gmail.com", // list of receivers
+    from: "nigaratiya786@gmail.com", // sender address
+    to: to, // list of receivers
     subject: "order info", // Subject line
     text: "Here is your order details ", // plain text body
-    html: "<b>Hello world?</b>", // html body
+    html: orderHtml, // html body
   });
 
   console.log("Message sent: %s", info.messageId);
@@ -28,9 +29,54 @@ async function main() {
 
 // main().catch(console.error);
 
-async function sendEmail() {
-  console.log("sending email", transporter);
-  await main();
+async function sendEmail(customerDetails, orders, to) {
+  console.log("sending email", customerDetails, "order:", orders);
+  const orderHtml = `
+  <body>
+    <h3>Customer Details (#001)</h3>
+    <hr>
+    <table>
+      <tr>
+        <th>Product Name</th>
+        <th>Image</th>
+        <th>Size</th>
+        <th>Quantity</th>
+        <th>Price</th>
+        
+      </tr>
+      ${orders.product_ids.map((v) => {
+        return ` <tr>
+        <td>${v.product_id.product_name}</td>
+        <td><img alt="img" src=${
+          "http://localhost:4001/" + v.product_id.image
+        }/></td>
+        <td>${v.size}</td>
+        <td>${v.quantity}</td>
+        
+        <td>${v.product_id.price * v.quantity}</td>
+        
+      </tr>`;
+      })}
+      
+    </table>
+    <h3>Shipping Address</h3>
+    
+    <span>Name:${customerDetails.name}</span>
+
+    <br />
+    <span>Address:${
+      customerDetails.address +
+      "," +
+      customerDetails.locality +
+      "," +
+      customerDetails.city
+    }</span>
+    <br />
+    <span>${customerDetails.pincode}</span>
+    <br />
+    <span>${customerDetails.state}</span>
+  </body>`;
+  await main(orderHtml, to);
 }
 
 module.exports = { sendEmail };

@@ -1,9 +1,12 @@
 const { Order } = require("../model/orderModel");
+const { Product } = require("../model/productModel");
+const { sendEmail } = require("../services/mailService");
 
 const addOrder = async (req, res) => {
   try {
     const {
-      product_id,
+      product_ids,
+      quantity,
       name,
       email,
       mobile,
@@ -41,7 +44,8 @@ const addOrder = async (req, res) => {
       return res.status(400).json({ msg: "state is missing" });
     }
     const order = new Order({
-      product_id,
+      product_ids,
+      quantity,
       name,
       email,
       mobile,
@@ -52,6 +56,28 @@ const addOrder = async (req, res) => {
       state,
     });
     await order.save();
+    // await Product.updateOne(
+    //   { _id: product_ids },
+    //   {
+    //     quantity: {
+    //       $inc: -quantity,
+    //     },
+    //   }
+    // );
+    // const products = await Product.find({
+    //   _id: {
+    //     $in: product_ids.map((v) => {
+    //       return v.product_id;
+    //     }),
+    //   },
+    // });
+
+    const orders = await Order.findOne({ _id: order._id }).populate(
+      "product_ids.product_id"
+    );
+
+    sendEmail(order, orders, "nigaratiya786@gmail.com");
+    sendEmail(order, orders, req.body.email);
     return res
       .status(200)
       .json({ msg: "order added successfully", order: order });
@@ -79,7 +105,18 @@ const getOrder = async (req, res) => {
 };
 const getOrders = async (req, res) => {
   try {
-    const orders = await Order.find().populate("product_id");
+    const role = req.user.role;
+    const email = req.user.email;
+    let orders = null;
+    if (role == "user") {
+      orders = await Order.find({ email: email }).populate(
+        "product_ids.product_id"
+      );
+    }
+    if (role == "admin") {
+      orders = await Order.find().populate("product_ids.product_id");
+    }
+
     if (!orders) {
       return res.status(400).json({ msg: "orders not found" });
     }
@@ -89,4 +126,56 @@ const getOrders = async (req, res) => {
     return res.status(500).json({ msg: "server error" });
   }
 };
-module.exports = { addOrder, getOrder, getOrders };
+
+const updateOrder = async (req, res) => {
+  try {
+    const id = req.params.id;
+    if (!id) {
+      return res.status(400).json({ msg: "id not found" });
+    }
+    let order = await Order.findOneAndUpdate(
+      { _id: id },
+      { status: req.body.status }
+    );
+    return res.status(200).json(order);
+  } catch (error) {
+    console.log("error in orderUpdate", error);
+    return res.status(500).json({ msg: "server error" });
+  }
+};
+
+// const placeOrders = async () => {
+//   try {
+//     const orderArray = [];
+//   } catch (error) {
+//     console.log("error in placeOrder");
+//     return res.status(500).json({ msg: "server error" });
+//   }
+// };
+
+const stats = async (req, res) => {
+  try {
+    const orders = await Order.find();
+    let totalOrder = orders.length;
+    let totalSales = 0;
+    let totalDeliveredOrders = 0;
+    let totalCustomers = 0;
+    let uniqueCustomer = new Set();
+    for (let i = 0; i < orders.length; i++) {
+      totalSales = totalSales + orders[i].order_value;
+      if (orders[i].status == "delivered") {
+        totalDeliveredOrders = totalDeliveredOrders + 1;
+      }
+      uniqueCustomer.add(orders[i].email);
+    }
+    totalCustomers = Array.of(uniqueCustomer).length;
+    return res
+      .status(200)
+      .json({ totalOrder, totalSales, totalCustomers, totalDeliveredOrders });
+  } catch (error) {
+    console.log("error in stats", error);
+    return res.status(500).json({ msg: "server error" });
+  }
+};
+
+module.exports = { addOrder, getOrder, getOrders, updateOrder, stats };

@@ -17,11 +17,11 @@ const {
   addOrder,
   getOrder,
   getOrders,
+  updateOrder,
+  stats,
 } = require("./controller/orderController");
+const { auth } = require("./middleware/auth");
 app.use(cors());
-
-const { sendEmail } = require("./services/mailService");
-sendEmail();
 
 app.use(express.json());
 
@@ -37,9 +37,12 @@ app.get("/api/get_product/:id", getProduct);
 app.put("/api/update_product/:id", updateProduct);
 app.delete("/api/delete_product/:id", deleteProduct);
 
-app.post("/api/add_order", addOrder);
-app.get("/api/get_order/:id", getOrder);
-app.get("/api/get_orders", getOrders);
+app.post("/api/add_order", auth, addOrder);
+app.get("/api/get_order/:id", auth, getOrder);
+app.get("/api/get_orders", auth, getOrders);
+app.put("/api/update_order_status/:id", auth, updateOrder);
+
+app.get("/api/stats", stats);
 
 app.listen(PORT, () => {
   console.log(`server is running on ${PORT}`);

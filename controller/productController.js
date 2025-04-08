@@ -6,10 +6,10 @@ const addProduct = async (req, res) => {
       product_name,
       price,
       size,
-
       color,
       product_detail,
       material_and_care,
+      quantity,
     } = req.body;
     // console.log(req.file);
     const image = req.file.filename;
@@ -35,6 +35,9 @@ const addProduct = async (req, res) => {
     if (!material_and_care) {
       return res.status(400).json({ msg: "material and care is missing!" });
     }
+    if (!quantity) {
+      return res.status(400).json({ msg: "quantity is missing" });
+    }
     const product = new Product({
       product_name,
       price,
@@ -43,6 +46,7 @@ const addProduct = async (req, res) => {
       color,
       product_detail,
       material_and_care: JSON.parse(material_and_care),
+      quantity,
     });
 
     await product.save();
@@ -89,6 +93,8 @@ const updateProduct = async (req, res) => {
       material_and_care,
     } = req.body;
 
+    //const image = req.file.filename;
+
     const product = await Product.updateOne(
       { _id: id },
       {
@@ -96,8 +102,9 @@ const updateProduct = async (req, res) => {
         price: price,
         size: size,
         color: color,
+        //image: image,
         product_detail: product_detail,
-        material_and_care: material_and_care,
+        //material_and_care: material_and_care,
       }
     );
     return res.status(200).json({ msg: "updated successefully" });

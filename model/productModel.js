@@ -31,6 +31,10 @@ const productSchema = new mongoose.Schema({
     required: true,
   },
   material_and_care: [material_and_care_schema],
+  quantity: {
+    type: Number,
+    required: true,
+  },
 });
 
 const Product = mongoose.model("product", productSchema);

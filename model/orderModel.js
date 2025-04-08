@@ -1,43 +1,63 @@
 const mongoose = require("mongoose");
 
-const orderSchema = new mongoose.Schema({
+const product = new mongoose.Schema({
   product_id: {
     type: mongoose.Types.ObjectId,
     required: true,
     ref: "product",
   },
+  quantity: {
+    type: Number,
+  },
+  size: {
+    type: String,
+  },
+  color: {
+    type: String,
+  },
+});
+
+const orderSchema = new mongoose.Schema({
+  product_ids: [product],
 
   name: {
     type: String,
-    require: true,
+    required: true,
   },
   email: {
     type: String,
-    require: true,
   },
   mobile: {
     type: Number,
-    require: true,
+    required: true,
+  },
+  order_value: {
+    type: Number,
+    default: 0,
   },
   pincode: {
     type: Number,
-    require: true,
+    required: true,
   },
   address: {
     type: String,
-    require: true,
+    required: true,
   },
   locality: {
     type: String,
-    require: true,
+    required: true,
   },
   city: {
     type: String,
-    require: true,
+    required: true,
   },
   state: {
     type: String,
-    require: true,
+    required: true,
+  },
+  status: {
+    type: String,
+    default: "order placed",
   },
 });
 
