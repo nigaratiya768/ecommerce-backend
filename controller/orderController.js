@@ -140,7 +140,8 @@ const updateOrder = async (req, res) => {
       { status: req.body.status }
     ).populate("product_ids.product_id");
 
-    sendEmail(order, order, order.email);
+    const updatedOrder = await Order.findOne({ _id: id });
+    sendEmail(updatedOrder, order, order.email);
     return res.status(200).json(order);
   } catch (error) {
     console.log("error in orderUpdate", error);
