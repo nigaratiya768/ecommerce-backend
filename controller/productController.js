@@ -10,6 +10,7 @@ const addProduct = async (req, res) => {
       product_detail,
       material_and_care,
       quantity,
+      category,
     } = req.body;
     // console.log(req.file);
     const image = req.file.filename;
@@ -47,6 +48,7 @@ const addProduct = async (req, res) => {
       product_detail,
       material_and_care: JSON.parse(material_and_care),
       quantity,
+      category,
     });
 
     await product.save();
@@ -89,8 +91,10 @@ const updateProduct = async (req, res) => {
       price,
       size,
       color,
+      quantity,
       product_detail,
       material_and_care,
+      category,
     } = req.body;
 
     //const image = req.file.filename;
@@ -102,8 +106,9 @@ const updateProduct = async (req, res) => {
         price: price,
         size: size,
         color: color,
-        //image: image,
+        quantity: quantity,
         product_detail: product_detail,
+        category: category,
         //material_and_care: material_and_care,
       }
     );

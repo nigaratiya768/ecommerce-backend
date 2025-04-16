@@ -35,6 +35,10 @@ const productSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  category: {
+    type: String,
+    required: true,
+  },
 });
 
 const Product = mongoose.model("product", productSchema);

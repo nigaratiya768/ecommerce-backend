@@ -42,9 +42,10 @@ async function sendEmail(customerDetails, orders, to) {
         <th>Size</th>
         <th>Quantity</th>
         <th>Price</th>
+        <th>Status</th>
         
       </tr>
-      ${orders.product_ids.map((v) => {
+      ${orders.product_ids?.map((v) => {
         return ` <tr>
         <td>${v.product_id.product_name}</td>
         <td><img alt="img" src=${
@@ -54,7 +55,7 @@ async function sendEmail(customerDetails, orders, to) {
         <td>${v.quantity}</td>
         
         <td>${v.product_id.price * v.quantity}</td>
-        
+        <td>${customerDetails.status}</td>
       </tr>`;
       })}
       

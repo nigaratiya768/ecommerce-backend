@@ -15,6 +15,7 @@ const addOrder = async (req, res) => {
       locality,
       city,
       state,
+      order_value,
     } = req.body;
     if (!name) {
       return res.status(400).json({ msg: "name is missing" });
@@ -54,6 +55,7 @@ const addOrder = async (req, res) => {
       locality,
       city,
       state,
+      order_value,
     });
     await order.save();
     // await Product.updateOne(
@@ -136,7 +138,9 @@ const updateOrder = async (req, res) => {
     let order = await Order.findOneAndUpdate(
       { _id: id },
       { status: req.body.status }
-    );
+    ).populate("product_ids.product_id");
+
+    sendEmail(order, order, order.email);
     return res.status(200).json(order);
   } catch (error) {
     console.log("error in orderUpdate", error);
@@ -160,15 +164,18 @@ const stats = async (req, res) => {
     let totalSales = 0;
     let totalDeliveredOrders = 0;
     let totalCustomers = 0;
+
     let uniqueCustomer = new Set();
     for (let i = 0; i < orders.length; i++) {
       totalSales = totalSales + orders[i].order_value;
       if (orders[i].status == "delivered") {
         totalDeliveredOrders = totalDeliveredOrders + 1;
       }
+      console.log("xyz", orders[i].email);
       uniqueCustomer.add(orders[i].email);
     }
-    totalCustomers = Array.of(uniqueCustomer).length;
+    console.log("abc", totalSales, totalCustomers, Array.of(uniqueCustomer));
+    totalCustomers = Array.from(uniqueCustomer).length;
     return res
       .status(200)
       .json({ totalOrder, totalSales, totalCustomers, totalDeliveredOrders });
